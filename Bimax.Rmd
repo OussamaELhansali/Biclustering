@@ -1,0 +1,70 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+```{r}
+install.packages("biclust")
+library(biclust)
+```
+```{r}
+library(tidyverse)
+```
+
+
+```{r}
+# Load gene expression data
+data <- read.table("G1_singlecells_counts.txt", header = TRUE)
+
+data <- data[,-1:-4]
+data
+```
+
+
+```{r}
+#Define the threshold
+threshold <- mean(as.numeric(unlist(data)))
+threshold
+```
+
+
+```{r}
+
+# Function to transform gene expression data into binary data
+transform_to_binary <- function(data, threshold) {
+  binary_data <- ifelse(data >= threshold, 1, 0)
+  return(binary_data)
+}
+
+# Transform the gene expression data into binary data
+binary_data <- apply(data, 2, transform_to_binary, threshold)
+binary_data
+```
+
+
+
+```{r}
+glimpse(binary_data)
+```
+
+```{r}
+#the biclust function to use bimax algorithm
+data.bimax <- biclust(binary_data, method=BCBimax())
+
+data.bimax
+```
+
+```{r}
+#Visualize a specific bicluster in the matrix
+drawHeatmap2(x = binary_data, bicResult = data.bimax, number = 1) 
+```
+
+
+
+```{r}
+#Visualize the bcluster independentely
+drawHeatmap(x = binary_data, bicResult = data.bimax, number = 1)
+```
+
